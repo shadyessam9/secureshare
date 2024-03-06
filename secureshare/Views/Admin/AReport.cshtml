@@ -1,0 +1,90 @@
+﻿@{
+    Layout = null; // This line specifies that this view won't use a layout
+}
+
+@model secureshare.ViewModels.ReportViewModel
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        table {
+            font-family: arial, sans-serif;
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        td, th {
+            border-style : ridge;
+            text-align: center;
+            padding: 10px;
+        }
+    </style>
+
+</head>
+<body>
+    <div class="pagetitle">
+      <h1>Report</h1>
+    </div><!-- End Page Title -->
+
+
+
+    <div style="height: 25px;"></div>
+
+
+    <table>
+        <thead>
+            <tr>
+                <th scope="col">Downloads</th>
+                <th scope="col">Uploads</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+
+                <td><h5>@(Model.Downloads)</h5></td>
+                <td><h5>@(Model.Uploads)</h5></td>
+            </tr>
+        </tbody>
+    </table>
+
+
+    <div style="height: 25px;"></div>
+
+    <H4>Actions : </H4>
+
+    <div style="height: 10px;"></div>
+
+
+    <table>
+        <thead>
+            <tr>
+                <th scope="col">User</th>
+                <th scope="col">Time</th>
+                <th scope="col">Action</th>
+            </tr>
+        </thead>
+        <tbody>
+
+            @foreach (var act in Model.Actions)
+            {
+                <tr>
+                    <td>@Model.Users.FirstOrDefault(u => u.UserID == act.UserID)?.Username</td>
+                    <td>@act.Timestamp</td>
+                    <td>
+                        @if (act.ActionPerformed == "Download")
+                        {
+                            <h5 class="badge bg-success badge-width">Download</h5>
+                        }
+                        else if (act.ActionPerformed == "Upload")
+                        {
+                            <h5 class="badge bg-warning badge-width">Upload</h5>
+                        }
+                    </td>
+                </tr>
+            }
+    </table>
+
+</body>
+</html>

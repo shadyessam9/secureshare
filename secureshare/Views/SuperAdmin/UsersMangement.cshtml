@@ -1,0 +1,123 @@
+﻿@model secureshare.ViewModels.UsersViewModel
+
+@{
+    Layout = "~/Views/Shared/_Layoutsuperadmin.cshtml";
+    var selectedBranchId = Context.Session.GetString("selectedBranchId") ?? "";
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+    <section class="section">
+        <div class="row">
+            <div class="col-lg-12">
+
+                <div class="card">
+                    <div class="card-body">
+                        <div style="height: 25px;"></div>
+                        <table width="100%">
+                            <tr>
+                                <!-- Filter dropdowns on the left -->
+                                <td style="width: 80%; text-align: left; vertical-align: top;">
+                                    <div style="display: inline-block; padding: 10px;">
+                                        <select id="departmentFilter" class="form-control">
+                                            <option value="">All Departments</option>
+                                            @foreach (var department in Model.Departments)
+                                            {
+                                                <option value="@department.DepartmentName">@department.DepartmentName</option>
+                                            }
+                                        </select>
+                                    </div>
+
+                                    <div style="display: inline-block; padding: 10px;">
+                                        <select id="branchFilter" class="form-control">
+                                            <option value="">All Branches</option>
+                                            @foreach (var branch in Model.Branchs)
+                                            {
+                                                <option value="@branch.BranchName">@branch.BranchName</option>
+                                            }
+                                        </select>
+                                    </div>
+                                </td>
+
+                                <td style="text-align: right; vertical-align: top;"><button type="submit" class="btn btn-secondary btn-sm" onclick="window.location.href='@Url.Action("AddUser", "Admin")';">Add</button></td>
+                            </tr>
+                        </table>
+                        <table class="table datatable">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Department</th>
+                                    <th>Branch</th>
+                                    <th>Password</th>
+                                    <th>PermissionType</th>
+                                    <th></th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var user in Model.Users)
+                                {
+                                    <tr>
+                                        <td>@user.Username</td>
+                                        <td>@Model.Departments.FirstOrDefault(d => d.DepartmentID == user.DepartmentID)?.DepartmentName</td>
+                                        <td>@Model.Branchs.FirstOrDefault(d => d.BranchId == user.BranchID)?.BranchName</td>
+                                        <td>@user.Password</td>
+                                        <td>
+                                            @if (user.PermissionType == 1)
+                                            {
+                                                <p>Download, Upload</p>
+                                            }
+                                            else if (user.PermissionType == 2)
+                                            {
+                                                <p>Download</p>
+                                            }
+                                        </td>
+                                        <td style="text-align: right; vertical-align: top;">
+                                            <button type="button" class="btn btn-warning btn-sm" onclick="window.location.href='@Url.Action("UserProfile", "Admin", new { userId = user.UserID })';">Manage</button>
+                                        </td>
+                                        <td style="text-align: right; vertical-align: top;">
+                                            <!-- Remove User Form -->
+                                            <form method="post" action="@Url.Action("RemoveUser", "Admin")">
+                                                <input type="hidden" name="userId" value="@user.UserID" />
+                                                <button type="submit" class="btn btn-danger btn-sm">Remove</button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                        <!-- End Table with stripped rows -->
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+
+    <script src="~/vendor/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('#departmentFilter, #branchFilter').on('change', function () {
+                var departmentValue = $('#departmentFilter').val().toLowerCase();
+                var branchValue = $('#branchFilter').val().toLowerCase();
+
+                $('.datatable tbody tr').each(function () {
+                    var departmentCell = $(this).find("td:eq(1)").text().toLowerCase();
+                    var branchCell = $(this).find("td:eq(2)").text().toLowerCase();
+
+                    var matchesDepartment = departmentValue === '' || departmentCell.includes(departmentValue);
+                    var matchesBranch = branchValue === '' || branchCell.includes(branchValue);
+
+                    $(this).toggle(matchesDepartment && matchesBranch);
+                });
+            });
+        });
+    </script>
+</body>
+</html> 

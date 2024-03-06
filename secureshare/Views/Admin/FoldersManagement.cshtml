@@ -1,0 +1,289 @@
+﻿@model secureshare.ViewModels.PartitionAndFoldersViewModel
+@{
+    Layout = "~/Views/Shared/_Layoutadmin.cshtml";
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        #addPartitionModal .modal-content {
+            /* Custom styles for modal content */
+        }
+
+        #addPartitionModal .modal-header,
+        #addPartitionModal .modal-body,
+        #addPartitionModal .modal-footer {
+            /* Apply consistent padding around modal sections */
+            padding: 20px;
+        }
+
+        #addPartitionModal .form-group {
+            /* Add more space below each form group */
+            margin-bottom: 1.5rem;
+        }
+
+        #addPartitionModal .modal-footer {
+            /* Add some space between buttons, or alignment adjustments */
+        }
+
+        #addPartitionModal .close {
+            color: white; /* Red color for the close button */
+            /* Add more styling as needed */
+        }
+    </style>
+
+
+</head>
+<body>
+    <div style="height: 25px;"></div>
+
+    <table width="100%">
+        <tr>
+            <td style="text-align: left; vertical-align: top;">
+                <h3>Partitions :</h3>
+            </td>
+            <td style="text-align: right; vertical-align: top;">
+                <!-- Place both buttons in the same table cell -->
+                <button id="addp" type="button" class="btn btn-secondary btn-sm">Add Local Partitions</button>
+                <button id="addnp" type="button" class="btn btn-secondary btn-sm">Add Network Location</button>
+            </td>
+        </tr>
+    </table>
+
+    <table class="table" width="50%">
+        <thead>
+            <tr>
+                <th scope="col">Name</th>
+                <th scope="col"></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var partition in Model.Partitions)
+            {
+                <tr>
+                    <td>@partition.Name</td>
+                    <td style="text-align: right; vertical-align: top;">
+                        <button type="button" class="btn btn-danger btn-sm" onclick="removePartition(@partition.Id)">Remove</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+
+    <div style="height: 25px;"></div>
+
+
+    <table width="100%">
+        <tr>
+            <td style="text-align: left; vertical-align: top;"><h3>SubFolders : </h3></td>
+        </tr>
+    </table>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col">Name</th>
+                <th scope="col">Partition</th>
+                <th scope="col" style="width: 100px;">FileCount</th> <!-- Adjust width as needed -->
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var folder in Model.Folders)
+            {
+                <tr>
+                    <td>@folder.Name</td>                   
+                    <td>@Model.Partitions.FirstOrDefault(p => p.Id == folder.PartitionID)?.Name</td>
+                    <td>@folder.FileCount</td>
+                </tr>
+            }
+        </tbody>
+
+    </table>
+
+
+
+    <div id="addPartitionModal" class="modal fade" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Add Partition</h5>
+                    <button type="button" class="close" aria-label="Close" style="background-color: red;" onclick="$('#addPartitionModal').modal('hide');">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <!-- Add padding to the modal-body -->
+                <div class="modal-body" style="padding: 20px;">
+                    <form id="addPartitionForm" method="post" action="@Url.Action("AddPartition", "Partition")">
+                        <!-- Add some spacing between form groups -->
+                        <div class="form-group mb-4">
+                            <label for="partitionSelect">Select Partition</label>
+                            <select id="partitionSelect" name="partitionName" class="form-control">
+                                <!-- Options will be populated here by JavaScript -->
+                            </select>
+                        </div>
+                        <div class="text-right">
+                            <!-- Add some margin above the Add button -->
+                            <button type="submit" class="btn btn-primary mt-2">Add</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div id="addNetworkLocationModal" class="modal fade" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Add Partition</h5>
+                    <button type="button" class="close" aria-label="Close" style="background-color: red;" onclick="$('#addNetworkLocationModal').modal('hide');">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="addNetworkLocationForm">
+                        <div class="form-group">
+                            <label for="networkPath">Network Path</label>
+                            <input type="text" class="form-control" id="networkPath" name="networkPath" placeholder="\\NetworkPath\Share">
+                        </div>
+                        <div class="modal-footer">
+                            <button type="submit" class="btn btn-primary">Add Network Location</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Success Modal -->
+    <div class="modal fade" id="successModal" tabindex="-1" role="dialog" aria-labelledby="successModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="successModalLabel">Success</h5>
+                    <button type="button" class="close" aria-label="Close" style="background-color: red;" onclick="$('#successModal').modal('hide');">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    Partition added successfully.
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Failure Modal -->
+    <div class="modal fade" id="failureModal" tabindex="-1" role="dialog" aria-labelledby="failureModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="failureModalLabel">Failure</h5>
+                    <button type="button" class="close" aria-label="Close" style="background-color: red;" onclick="$('#failureModal').modal('hide');">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    Error: Could not add partition.
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <script src="~/vendor/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            // Attach event handler for the Add Partition button
+            $('#addPartitionForm').submit(function (event) {
+                event.preventDefault(); // Prevent the default form submission
+                submitAddPartitionForm();
+            });
+
+            $('#addp').click(function () {
+                showAddPartitionModal();
+            });
+        });
+
+
+        function showAddPartitionModal() {
+            // Fetch available partitions from the server
+            $.get('/Admin/GetAvailablePartitions', function (partitions) {
+                // Assuming 'partitions' is an array of partition names
+                var options = partitions.map(p => `<option value="${p}">${p}</option>`).join('');
+
+                // Set the options in the select dropdown
+                $('#partitionSelect').html(options);
+
+                // Show the modal
+                $('#addPartitionModal').modal('show');
+            }).fail(function () {
+                alert('Error: Could not retrieve partitions.');
+            });
+        }
+
+        function submitAddPartitionForm() {
+            var selectedPartition = $('#partitionSelect').val();
+            $.post('/Admin/AddPartition', { partitionPath: selectedPartition })
+                .done(function (response) {
+                    $('#loadingSpinner').hide(); // Hide the spinner
+                    $('#addPartitionModal').modal('hide'); // Hide the add partition modal
+                    $('#successModal').modal('show'); // Show the success modal
+                    location.reload();
+                })
+                .fail(function () {
+                    $('#loadingSpinner').hide(); // Hide the spinner
+                    $('#addPartitionModal').modal('hide'); // Hide the add partition modal
+                    $('#failureModal').modal('show'); // Show the failure modal
+                });
+        }
+
+
+        function removePartition(partitionId) {
+            if (confirm('Are you sure you want to remove this partition?')) {
+                $.post('/Admin/RemovePartition', { partitionId: partitionId })
+                    .done(function (response) {
+                        alert('Partition removed successfully');
+                        location.reload(); // Reload the page to reflect the changes
+                    })
+                    .fail(function () {
+                        alert('Error: Could not remove partition.');
+                    });
+            }
+        }
+
+        $(document).ready(function () {
+            // Handler for Add Network Location button
+            $('#addnp').click(function () {
+                $('#addNetworkLocationModal').modal('show');
+            });
+
+            // Submit handler for Add Network Location form
+            $('#addNetworkLocationForm').submit(function (event) {
+                event.preventDefault();
+                submitAddNetworkLocationForm();
+            });
+        });
+
+        function submitAddNetworkLocationForm() {
+            var networkPath = $('#networkPath').val();
+            $.post('@Url.Action("AddNetworkLocation", "Admin")', { networkPath: networkPath })
+                .done(function () {
+                    $('#addNetworkLocationModal').modal('hide');
+                    alert('Network location added successfully.');
+                    location.reload();
+                })
+                .fail(function () {
+                    $('#addNetworkLocationModal').modal('hide');
+                    alert('Error: Could not add network location.');
+                });
+        }
+
+    </script>
+</body>
+</html>

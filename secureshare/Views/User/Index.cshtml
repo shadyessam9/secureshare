@@ -1,0 +1,35 @@
+﻿@model List<secureshare.ViewModels.FolderViewModel>
+<!DOCTYPE html>
+<html lang="en">
+<body>
+    <div class="container">
+        <div class="row">
+            @if (Model != null && Model.Any())
+            {
+                foreach (var folderDetail in Model)
+                {
+                    <div class="col-lg-4 col-md-6">
+                        <a href="@Url.Action("FolderContent", "User", new { folderPath = folderDetail.FolderPath })" class="card-link">
+                            <div class="card mb-4">
+                                <div class="card-body">
+                                    <h5 class="card-title">@folderDetail.FileCount <span>| File</span></h5>
+                                    <div class="d-flex align-items-center justify-content-center" style="min-height: 100px;">
+                                        <i class="bi bi-folder-fill" style="font-size: 5em;" aria-hidden="true"></i>
+                                    </div>
+                                    <h4 class="card-title text-center fw-bold">@folderDetail.FolderName</h4>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                }
+            }
+            else
+            {
+                <div class="col-12">
+                    <p>No folders available to display.</p>
+                </div>
+            }
+        </div>
+    </div>
+</body>
+</html>

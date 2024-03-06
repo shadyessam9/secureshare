@@ -1,0 +1,371 @@
+﻿@using System.Security.Claims
+@using Microsoft.AspNetCore.Authentication
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"]secureshare</title>
+
+    <title>Dashboard - NiceAdmin Bootstrap Template</title>
+    <meta content="" name="description">
+    <meta content="" name="keywords">
+
+    <!-- Favicons -->
+    <link href="~/img/favicon.png" rel="icon">
+    <link href="~/img/apple-touch-icon.png" rel="apple-touch-icon">
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.gstatic.com" rel="preconnect">
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Nunito:300,300i,400,400i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i" rel="stylesheet">
+
+    <!-- Vendor CSS Files -->
+    <link href="~/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="~/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
+    <link href="~/vendor/boxicons/css/boxicons.min.css" rel="stylesheet">
+    <link href="~/vendor/quill/quill.snow.css" rel="stylesheet">
+    <link href="~/vendor/quill/quill.bubble.css" rel="stylesheet">
+    <link href="~/vendor/remixicon/remixicon.css" rel="stylesheet">
+    <link href="~/vendor/simple-datatables/style.css" rel="stylesheet">
+
+    <!-- Template Main CSS File -->
+    <link href="~/css/style.css" rel="stylesheet">
+
+
+    <style>
+        /* Forcefully remove highlighting on hover */
+        #reportModalButton1:hover, #reportModalButton2:hover {
+            background-color: transparent !important; /* Adjust if you want a different hover background */
+            color: inherit !important; /* Adjust if you want a different text color on hover */
+        }
+
+        /* Forcefully remove highlighting on focus */
+        #reportModalButton1:focus, #reportModalButton2:focus {
+            background-color: transparent !important; /* Adjust if you want a different focus background */
+            color: inherit !important; /* Adjust if you want a different text color on focus */
+            outline: none !important; /* Removes the outline */
+        }
+
+        /* Forcefully remove highlighting on active */
+        #reportModalButton1:active, #reportModalButton2:active {
+            background-color: transparent !important; /* Adjust if you want a different active background */
+            color: inherit !important; /* Adjust if you want a different text color on active */
+        }
+
+        /* Override Bootstrap nav-link class styles if necessary */
+        .nav-link, .nav-link:hover, .nav-link:focus, .nav-link:active {
+            background-color: transparent !important;
+            color: inherit !important;
+            outline: none !important;
+            box-shadow: none !important;
+        }
+    </style>
+</head>
+<body>
+    <!-- ======= Header ======= -->
+    <header id="header" class="header fixed-top d-flex align-items-center">
+
+        <div class="d-flex align-items-center justify-content-between">
+            <a class="logo d-flex align-items-center" asp-controller="Admin" asp-action="Index">
+                <img src="~/img/logo.png" alt="">
+                <span class="d-none d-lg-block">SecureShare</span>
+            </a>
+            <i class="bi bi-list toggle-sidebar-btn"></i>
+        </div><!-- End Logo -->
+
+
+
+        <nav class="header-nav ms-auto">
+            <ul class="d-flex align-items-center">
+
+                <li class="nav-item d-block d-lg-none">
+                    <a class="nav-link nav-icon search-bar-toggle " href="#">
+                        <i class="bi bi-search"></i>
+                    </a>
+                </li><!-- End Search Icon-->
+
+
+
+                <li style="padding-right:15px">
+                    <select class="form-select" name="DepartmentID" aria-label="Default select example">
+                        <option selected>Choose Branch</option>
+                    </select>
+                </li>
+
+
+
+                <li class="nav-item dropdown pe-3">
+
+                    @if (User.Identity.IsAuthenticated)
+                    {
+                    @inject secureshareContext _dbContext
+
+                        // Get the user ID from claims
+                        var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+                        if (userIdClaim != null && int.TryParse(userIdClaim, out int userId))
+                        {
+                            // Query the database for the user's details
+                            var user = _dbContext.Admins.FirstOrDefault(u => u.AdminID == userId);
+
+                            if (user != null)
+                            {
+
+                                <a class="nav-link nav-profile d-flex align-items-center pe-0" href="#" data-bs-toggle="dropdown">
+                                    <img src="~/img/user.png" alt="Profile" class="rounded-circle">
+                                    <span class="d-none d-md-block dropdown-toggle ps-2">@user.Username</span>
+                                </a>
+
+                                <!-- End Profile Iamge Icon -->
+                            }
+                        }
+                    }
+
+                    @if (User.Identity.IsAuthenticated)
+                    {
+                    @inject secureshareContext _dbContext
+
+                        // Get the user ID from claims
+                        var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+                        if (userIdClaim != null && int.TryParse(userIdClaim, out int userId))
+                        {
+                            // Query the database for the user's details
+                            var user = _dbContext.Admins.FirstOrDefault(u => u.AdminID == userId);
+
+                            if (user != null)
+                            {
+                                // Display the user information
+                                <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow profile">
+                                    <li class="dropdown-header">
+                                        <!-- Display the username -->
+                                        <h6>@user.Username</h6>
+                                    </li>
+                                    <li>
+                                        <hr class="dropdown-divider">
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item d-flex align-items-center" asp-controller="Auth" asp-action="Logout" asp-route-returnUrl="/">
+                                            <i class="bi bi-box-arrow-right"></i>
+                                            <span>Sign Out</span>
+                                        </a>
+                                    </li>
+                                </ul>
+
+                                <!-- End Profile Dropdown Items -->
+                            }
+                        }
+                    }
+                </li><!-- End Profile Nav -->
+
+
+            </ul>
+        </nav><!-- End Icons Navigation -->
+
+    </header><!-- End Header -->
+    <!-- ======= Sidebar ======= -->
+
+    <aside id="sidebar" class="sidebar">
+        <ul class="sidebar-nav" id="sidebar-nav">
+            <!-- Dashboard Button -->
+            <li class="nav-item">
+                <button class="btn nav-link collapsed" data-bs-toggle="collapse" data-bs-target="#components-nav" onclick="window.location.href='@Url.Action("Index", "Admin")';">
+                    <i class="bi bi-grid"></i>
+                    <span>Dashboard</span>
+                </button>
+            </li>
+
+            <!-- Folders Management Button -->
+            <li class="nav-item">
+                <button class="btn nav-link collapsed" data-bs-toggle="collapse" data-bs-target="#components-nav" onclick="window.location.href='@Url.Action("FoldersManagement", "Admin")';">
+                    <i class="bi bi-folder"></i>
+                    <span>Folders Management</span>
+                </button>
+            </li>
+
+            <!-- User Management Button -->
+            <li class="nav-item">
+                <button class="btn nav-link collapsed" data-bs-toggle="collapse" data-bs-target="#components-nav" onclick="window.location.href='@Url.Action("UsersMangement", "Admin")';">
+                    <i class="bi bi-person"></i>
+                    <span>User Management</span>
+                </button>
+            </li>
+
+            <!-- Report Print Button -->
+            <li class="nav-item">
+                <a class="nav-link collapsed" data-bs-target="#forms-nav" data-bs-toggle="collapse" href="#">
+                    <i class="bi bi-file-earmark-bar-graph"></i><span>Reports</span><i class="bi bi-chevron-down ms-auto"></i>
+                </a>
+                <ul id="forms-nav" class="nav-content collapse " data-bs-parent="#sidebar-nav">
+                    <li>
+                        <button id="reportModalButton1" class="btn nav-link">
+                            <i class="bi bi-file-earmark-bar-graph"></i>
+                            <span>Users & Folders Report</span>
+                        </button>
+                    </li>
+                    <li>
+                        <button id="reportModalButton2" class="btn nav-link">
+                            <i class="bi bi-file-earmark-bar-graph"></i>
+                            <span>Actions Report</span>
+                        </button>
+                    </li>
+                </ul>
+
+
+
+
+
+            </li>
+        </ul>
+    </aside>
+
+
+
+    @{
+        @inject secureshareContext _dbContext
+
+        var Departments = _dbContext.Departments.ToList();
+        var Branchs = _dbContext.Branches.ToList();
+    }
+
+    <!-- UARModal -->
+    <div class="modal fade" id="UARModal" tabindex="-1" aria-labelledby="addFolderModalLabel" aria-hidden="true">
+        <form method="post" id="reportForm" action="@Url.Action("AReport", "Admin")">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="addFolderModalLabel">Users Action Report</h5>
+                        <button type="button" class="close" aria-label="Close" style="background-color: red;" onclick="$('#UARModal').modal('hide');">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <!-- Add margin-bottom -->
+                            <input class="form-control" name="specificDate" type="date">
+                        </div>
+                        <div class="mb-3">
+                            <!-- Add margin-bottom -->
+                            <select class="form-select" name="DepartmentID">
+                                <option value="">All Departments</option>
+                                @foreach (var department in Departments)
+                                {
+                                    <option value="@department.DepartmentID">@department.DepartmentName</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <!-- Add margin-bottom -->
+                            <select class="form-select" name="BranchID">
+                                <option value="">All Branches</option>
+                                @foreach (var branch in Branchs)
+                                {
+                                    <option value="@branch.BranchId">@branch.BranchName</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary">Print Report</button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+
+
+    <!-- UFRModal -->
+    <div class="modal fade" id="UFRModal" tabindex="-1" aria-labelledby="addFolderModalLabel" aria-hidden="true">
+        <form method="post" id="reportForm" action="@Url.Action("UfReport", "Admin")">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="addFolderModalLabel">Users Folders Report</h5>
+                        <button type="button" class="close" aria-label="Close" style="background-color: red;" onclick="$('#UFRModal').modal('hide');">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <!-- Added margin-bottom -->
+                            <select class="form-select" name="DepartmentID">
+                                <option value="">All Departments</option>
+                                @foreach (var department in Departments)
+                                {
+                                    <option value="@department.DepartmentID">@department.DepartmentName</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <!-- Added margin-bottom -->
+                            <select class="form-select" name="BranchID">
+                                <option value="">All Branches</option>
+                                @foreach (var branch in Branchs)
+                                {
+                                    <option value="@branch.BranchId">@branch.BranchName</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary">Print Report</button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+
+
+
+    <main id="main" class="main">
+        <div>
+            @RenderBody()
+        </div>
+    </main><!-- End #main -->
+    <!-- Vendor JS Files -->
+    <!-- jQuery (required for Bootstrap 5) -->
+    <script src="~/vendor/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            // When the button with id 'reportModalButton' is clicked
+            $('#reportModalButton2').on('click', function () {
+                // Show the modal with id 'reportModal'
+                $('#UARModal').modal('show');
+            });
+        });
+
+        $(document).ready(function () {
+            // When the button with id 'reportModalButton' is clicked
+            $('#reportModalButton1').on('click', function () {
+                // Show the modal with id 'reportModal'
+                $('#UFRModal').modal('show');
+            });
+        });
+    </script>
+
+
+    <script>
+        document.getElementById("branchDropdown").addEventListener("change", function () {
+            var selectedBranchId = this.value;
+            sessionStorage.setItem("selectedBranchId", selectedBranchId);
+            location.reload(); // Refresh the page
+        });
+    </script>
+
+    <!-- Popper.js (required for Bootstrap 5) -->
+    <script src="~/vendor/popper.min.js"></script>
+    <script src="~/vendor/apexcharts/apexcharts.min.js"></script>
+    <script src="~/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="~/vendor/chart.js/chart.umd.js"></script>
+    <script src="~/vendor/echarts/echarts.min.js"></script>
+    <script src="~/vendor/quill/quill.min.js"></script>
+    <script src="~/vendor/simple-datatables/simple-datatables.js"></script>
+    <script src="~/vendor/tinymce/tinymce.min.js"></script>
+    <script src="~/vendor/php-email-form/validate.js"></script>
+
+
+    <!-- Template Main JS File -->
+    <script src="~/js/main.js"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

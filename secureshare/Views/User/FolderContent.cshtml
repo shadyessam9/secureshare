@@ -1,0 +1,144 @@
+﻿@model secureshare.ViewModels.FolderContentViewModel;
+@using System.Security.Claims
+@using Microsoft.AspNetCore.Authentication
+<!DOCTYPE html>
+<html>
+<head>
+    <!-- Your head content -->
+</head>
+<body>
+    <h1>Content of Folder: @Model.FolderPath</h1>
+
+    <div class="container">
+        <div class="row">
+            <!-- Column for Files -->
+            <div class="col-lg-6">
+                <h2>Files:</h2>
+                @foreach (var file in Model.Files)
+                {
+                    var fileName = file.Split("\\", StringSplitOptions.RemoveEmptyEntries).LastOrDefault();
+                    var displayName = fileName?.Substring(fileName.LastIndexOf('\\') + 1);
+                    var fileExtension = fileName?.Substring(fileName.LastIndexOf('.') + 1).ToLower();
+
+                    <div class="card mb-3">
+                        <div class="card-body d-flex justify-content-between align-items-center">
+                            <div>
+                                <!-- Display file icon on the right -->
+                                @if (fileExtension == "jpg" || fileExtension == "jpeg" || fileExtension == "png" || fileExtension == "gif")
+                                {
+                                    <!-- Check if file contains the correct path to display the image -->
+                                    <i class="bi bi-file-earmark-image-fill" style="font-size: 1.5em;"></i>
+                                }
+                                else if (fileExtension == "pdf")
+                                {
+                                    <!-- Display PDF icon or handle PDF differently -->
+                                    <i class="bi bi-file-pdf" style="font-size: 1.5em;"></i>
+                                }
+                                else
+                                {
+                                    <i class="bi bi-file-earmark-post" style="font-size: 1.5em;"></i>
+                                }
+                            </div>
+
+                            <div>
+                                <h5 class="card-title">@displayName</h5>
+                                <!-- Display file name on the left -->
+                            </div>
+
+                            <div>
+                                <!-- Download icon in the middle -->
+                                <a asp-action="DownloadFileWithWatermark" asp-route-filePath="@file">
+                                    <i class="bi bi-cloud-download" style="font-size: 1.5em;"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+            <!-- Column for Folders -->
+            <div class="col-lg-6">
+                <h2>SubFolders:</h2>
+                <div class="container">
+                    <div class="row">
+                        @if (Model != null)
+                        {
+                            @foreach (var folder in Model.SubFolders)
+                            {
+                                <div class="col-lg-6">
+                                    <a href="@Url.Action("FolderContent", "User", new { folderPath = folder })" class="card-link">
+                                        <div class="card mb-4">
+                                            <div class="card-body">
+                                                <!-- Display folder icon -->
+                                                <div class="d-flex align-items-center justify-content-center" style="min-height: 100px;">
+                                                    <i class="bi bi-folder-fill" style="font-size: 5em;"></i>
+                                                </div>
+                                                <!-- Display folder name -->
+                                                <h4 class="card-title text-center fw-bold">@folder</h4>
+                                            </div>
+                                        </div>
+                                    </a>
+                                </div>
+                            }
+                        }
+                    </div>
+                </div>
+            </div>
+
+
+            @if (User.Identity.IsAuthenticated)
+            {
+            @inject secureshareContext _dbContext
+
+                // Get the user ID from claims
+                var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+                if (userIdClaim != null && int.TryParse(userIdClaim, out int userId))
+                {
+                    // Query the database for the user's details
+                    var user = _dbContext.Users.FirstOrDefault(u => u.UserID == userId);
+
+                    if (user != null)
+                    {
+
+                        if(user.PermissionType == 1)
+                        {
+                            <div style="position: fixed; bottom: 20px; right: 20px;">
+                                <div class="text-end">
+                                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#uploadModal" style="width: 60px; height: 60px; border-radius: 10px; background-color: #002d62; border-color: #002d62; padding: 10px;">
+                                        <i class="bi bi-upload" style="font-size: 24px; color: white; line-height: 40px;"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        }
+                        <!-- End Profile Dropdown Items -->
+                    }
+                }
+            }
+
+
+            <!-- Modal for file upload -->
+            <div class="modal fade" id="uploadModal" tabindex="-1" aria-labelledby="uploadModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="uploadModalLabel">Upload File</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <form asp-action="UploadFile" asp-controller="User" method="post" enctype="multipart/form-data">
+                                <div class="mb-3">
+                                    <input type="file" name="file" class="form-control" />
+                                </div>
+                                <div class="mb-3">
+                                    <input type="submit" value="Upload File" class="btn btn-primary" />
+                                </div>
+                                <input type="hidden" name="folderPath" value="@Model.FolderPath" />
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

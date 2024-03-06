@@ -1,0 +1,293 @@
+﻿@model secureshare.ViewModels.UserProfileViewModel
+@{
+    Layout = "~/Views/Shared/_Layoutadmin.cshtml";
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <style>
+        #folderModal .modal-content {
+            /* Custom styles for modal content */
+        }
+
+        #folderModal .modal-header,
+        #folderModal .modal-body,
+        #folderModal .modal-footer {
+            /* Apply consistent padding around modal sections */
+            padding: 20px;
+        }
+
+        #folderModal .form-group {
+            /* Add more space below each form group */
+            margin-bottom: 1.5rem;
+        }
+
+        #folderModal .modal-footer {
+            /* Add some space between buttons, or alignment adjustments */
+        }
+
+        #folderModal .close {
+            color: white; /* Red color for the close button */
+            /* Add more styling as needed */
+        }
+
+        .scrollable-list {
+            max-height: 200px; /* or any height that fits your design */
+            overflow-y: auto;
+            border: 1px solid #ced4da; /* similar to Bootstrap's input border */
+            padding: .375rem .75rem; /* similar to Bootstrap's input padding */
+            border-radius: .25rem; /* similar to Bootstrap's input border-radius */
+        }
+
+    </style>
+</head>
+<body>
+
+    <section class="section profile">
+        <div class="row">
+            <div class="col-xl-4">
+
+                <div class="card">
+                    <div class="card-body profile-card pt-4 d-flex flex-column align-items-center">
+
+                        <img src="~/img/user.png" alt="Profile" class="rounded-circle">
+                        <h2>@Model.User.Username</h2>
+                        <h3>@Model.Departments.FirstOrDefault(d => d.DepartmentID == @Model.User.DepartmentID)?.DepartmentName</h3>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="col-xl-8">
+
+                <div class="card">
+                    <div class="card-body pt-3">
+                        <!-- Bordered Tabs -->
+                        <ul class="nav nav-tabs nav-tabs-bordered">
+
+                            <li class="nav-item">
+                                <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#profile-overview">Overview</button>
+                            </li>
+
+                            <li class="nav-item">
+                                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#profile-edit">Edit Profile</button>
+                            </li>
+
+                            <li class="nav-item">
+                                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#profile-settings">FoldersAcess</button>
+                            </li>
+
+                        </ul>
+                        <div class="tab-content pt-2">
+
+                            <div class="tab-pane fade show active profile-overview" id="profile-overview">
+
+                                <h5 class="card-title">Profile Details</h5>
+
+                                <div class="row">
+                                    <div class="col-lg-3 col-md-4 label ">Full Name</div>
+                                    <div class="col-lg-9 col-md-8">@Model.User.Username</div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-lg-3 col-md-4 label">Department</div>
+                                    <div class="col-lg-9 col-md-8">@Model.Departments.FirstOrDefault(d => d.DepartmentID == @Model.User.DepartmentID)?.DepartmentName</div>
+
+                                </div>
+
+
+                                <div class="row">
+                                    <div class="col-lg-3 col-md-4 label">Branch</div>
+                                    <div class="col-lg-9 col-md-8">@Model.Branchs.FirstOrDefault(d => d.BranchId== @Model.User.BranchID)?.BranchName</div>
+
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-lg-3 col-md-4 label">Password</div>
+                                    <div class="col-lg-9 col-md-8">@Model.User.Password</div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-lg-3 col-md-4 label">PPermissionType</div>
+                                    <div class="col-lg-9 col-md-8">@if (Model.User.PermissionType == 1)
+                                        {
+                                            <h5>Download&Upload</h5>
+                                        }
+                                        else if (Model.User.PermissionType == 2)
+                                        {
+                                            <h5>Download</h5>
+                                        }
+                                    </div>
+                                </div>
+
+
+                            </div>
+
+                            <div class="tab-pane fade profile-edit pt-3" id="profile-edit">
+
+                                <!-- Profile Edit Form -->
+                                <form action="@Url.Action("UpdateUserProfile", "Admin")" method="post">
+
+                                     <input type="hidden" class="form-control" asp-for="@Model.User.UserID">
+
+                                    <div class="row mb-3">
+                                        <label for="Username" class="col-sm-2 col-form-label">Name</label>
+                                        <div class="col-sm-10">
+                                            <input type="text" class="form-control" asp-for="@Model.User.Username">
+                                        </div>
+                                    </div>
+
+                                    <div class="row mb-3">
+                                        <label for="Password" class="col-sm-2 col-form-label">Password</label>
+                                        <div class="col-sm-10">
+                                            <input type="text" class="form-control" asp-for="@Model.User.Password">
+                                        </div>
+                                    </div>
+
+                                    <div class="row mb-3">
+                                        <label class="col-sm-2 col-form-label">Department</label>
+                                        <div class="col-sm-10">
+                                            <select asp-for="User.DepartmentID" class="form-select">
+                                                @foreach(var dep in Model.Departments)
+                                                {
+                                                    <option value="@dep.DepartmentID">@dep.DepartmentName</option>
+                                                }
+                                            </select>
+                                        </div>
+                                    </div>
+
+
+
+                                    <div class="row mb-3">
+                                        <label class="col-sm-2 col-form-label">Branch</label>
+                                        <div class="col-sm-10">
+                                            <select asp-for="User.BranchID" class="form-select">
+                                                @foreach (var branch in Model.Branchs)
+                                                {
+                                                    <option value="@branch.BranchId">@branch.BranchName</option>
+                                                }
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div class="row mb-3">
+                                        <label class="col-sm-2 col-form-label">PermissionType</label>
+                                        <div class="col-sm-10">
+                                            <select asp-for="User.PermissionType" class="form-select">
+                                                <option value=1>Download&Upload</option>
+                                                <option value=2>Download</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+
+
+
+                                    <div class="text-center">
+                                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                                    </div>
+                                </form><!-- End Profile Edit Form -->
+
+                            </div>
+
+                            <div class="tab-pane fade pt-3" id="profile-settings">
+
+                                <table width="100%">
+                                    <tr>
+                                        <td style="text-align: left; vertical-align: top;"><h3>FoldersAcess : </h3></td>
+                                        <td style="text-align: right; vertical-align: top;"><button class="btn btn-secondary btn-sm" id="openModalButton">Add</button></td>
+                                    </tr>
+                                </table>
+
+                                <table class="table" width="100%">
+                                    <thead>
+                                        <tr>
+                                            <th scope="col">Name</th>
+                                            <th scope="col">FileCount</th>
+                                            <th scope="col"></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var folder in Model.UserFolders)
+                                        {
+                                            <tr>
+                                                <td>@folder.Name</td>
+                                                <td>@folder.FileCount</td>
+                                                <td style="text-align: right; vertical-align: top;">
+                                                    <!-- Remove Folder Form -->
+                                                    <form method="post" action="@Url.Action("RemoveFolderFromUser", "Admin")">
+                                                        <input type="hidden" name="userId" value="@Model.User.UserID" />
+                                                        <input type="hidden" name="folderId" value="@folder.FolderID" />
+                                                        <button type="submit" class="btn btn-danger btn-sm">Remove</button>
+                                                    </form>
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                                 
+                            </div>
+
+                        </div><!-- End Bordered Tabs -->
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+
+    <script src="~/vendor/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $("#openModalButton").click(function () {
+                $("#addFolderModal").modal('show');
+            });
+        });
+
+        $(document).ready(function () {
+            $("#openModalButton").click(function () {
+                $("#addFolderModal").modal('show');
+            });
+        });
+    </script>
+    <!-- Modal -->
+    <div class="modal fade" id="addFolderModal" tabindex="-1" aria-labelledby="addFolderModalLabel" aria-hidden="true">
+        <form id="addFolderForm" method="post" action="@Url.Action("AddFolderForUser", "Admin")">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addFolderModalLabel">Add Folders</h5>
+                        <button type="button" class="close" aria-label="Close" style="background-color: red;" onclick="$('#addFolderModal').modal('hide');">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>              
+                    <div class="modal-body">
+                        <input type="hidden" name="userId" value="@Model.User.UserID" />
+                        <div class="scrollable-list">
+                            @{
+                                var registeredFolderIds = Model.UserFolders.Select(f => f.FolderID).ToList();
+                            }
+                            @foreach (var folder in Model.Folders.Where(f => !registeredFolderIds.Contains(f.FolderID)))
+                            {
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="selectedFolders[]" value="@folder.FolderID" id="folderCheck@folder.FolderID">
+                                    <label class="form-check-label" for="folderCheck@folder.FolderID">
+                                        @folder.Name
+                                    </label>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary">Add Folders</button>
+                    </div>             
+            </div>
+        </div>
+        </form>
+    </div>
+</body>
+</html>

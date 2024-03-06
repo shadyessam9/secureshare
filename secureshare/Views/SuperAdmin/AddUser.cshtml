@@ -1,0 +1,143 @@
+﻿@model secureshare.ViewModels.UsersViewModel
+@{
+    Layout = "~/Views/Shared/_Layoutsuperadmin.cshtml";
+    var selectedBranchId = Context.Session.GetString("selectedBranchId") ?? "";
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        .scrollable-list {
+            max-height: 200px; /* or any height that fits your design */
+            overflow-y: auto;
+            border: 1px solid #ced4da; /* similar to Bootstrap's input border */
+            padding: .375rem .75rem; /* similar to Bootstrap's input padding */
+            border-radius: .25rem; /* similar to Bootstrap's input border-radius */
+        }
+
+    </style>
+</head>
+<body>
+    <section class="section">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Add New User</h5>
+
+                        <!-- General Form Elements -->
+                        <form method="post" action="@Url.Action("AddUser", "Admin")">
+                            <!-- Name -->
+                            <div class="row mb-3">
+                                <label for="username" class="col-sm-2 col-form-label">Name</label>
+                                <div class="col-sm-10">
+                                    <input type="text" class="form-control" id="username" name="Username">
+                                </div>
+                            </div>
+
+                            <!-- Department -->
+                            <!-- Populate this select with actual department data -->
+                            <div class="row mb-3">
+                                <label class="col-sm-2 col-form-label">Department</label>
+                                <div class="col-sm-10">
+                                    <select class="form-select" name="DepartmentID" aria-label="Default select example">
+                                        <option selected>Choose Department</option>
+                                        @foreach(var dep in Model.Departments)
+                                        {
+                                            <option value="@dep.DepartmentID">@dep.DepartmentName</option>
+                                        }
+                                    </select>
+                                </div>
+                            </div>
+
+
+                            <!-- Branch -->
+                            <!-- Populate this select with actual Branch data -->
+                            <div class="row mb-3">
+                                <label class="col-sm-2 col-form-label">Branch</label>
+                                <div class="col-sm-10">
+                                    <select class="form-select" name="BranchId" aria-label="Default select example">
+                                        <option selected>Choose Branch</option>
+                                        @foreach (var Branch in Model.Branchs)
+                                        {
+                                            <option value="@Branch.BranchId">@Branch.BranchName</option>
+                                        }
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- Password -->
+                            <div class="row mb-3">
+                                <label for="password" class="col-sm-2 col-form-label">Password</label>
+                                <div class="col-sm-10">
+                                    <input type="password" class="form-control" id="password" name="Password">
+                                </div>
+                            </div>
+
+                            <!-- Permission Type -->
+                            <!-- Adjust the value and name attributes as necessary -->
+                            <fieldset class="row mb-3">
+                                <legend class="col-form-label col-sm-2 pt-0">Permission Type</legend>
+                                <div class="col-sm-10">
+                                    <!-- Option 1: Download & Upload -->
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="PermissionType" id="permissionType1" value="1" checked>
+                                        <label class="form-check-label" for="permissionType1">
+                                            Download & Upload
+                                        </label>
+                                    </div>
+                                    <!-- Option 2: Download Only -->
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="PermissionType" id="permissionType2" value="2">
+                                        <label class="form-check-label" for="permissionType2">
+                                            Download Only
+                                        </label>
+                                    </div>
+                                </div>
+                            </fieldset>
+
+
+                            <div style="height: 25px;"></div>
+
+
+                            <div class="row mb-3">
+                                <label for="scrollable-list" class="col-sm-2 col-form-label">FolderAccess</label>
+                                <div class="col-sm-10">
+                                    <div class="scrollable-list">
+                                        @foreach (var folder in Model.Folders)
+                                        {
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" name="selectedFolders[]" value="@folder.FolderID" id="folderCheck@folder.FolderID">
+                                                <label class="form-check-label" for="folderCheck@folder.FolderID">
+                                                    @folder.Name
+                                                </label>
+                                            </div>
+                                        }
+
+                                    </div>
+                                </div>
+                            </div>
+
+
+                            <div style="height: 25px;"></div>
+
+
+                            <!-- Submit Button -->
+                            <div class="d-grid gap-2 col-6 mx-auto">
+                                <button class="btn btn-primary" type="submit">Add</button>
+                            </div>
+                        </form>
+                        <!-- End General Form Elements -->
+
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </section>
+</body>
+</html>
